@@ -1,6 +1,6 @@
 class Aoc2020::Two < Aoc2020::Solution
-  def self.input
-    File.read_lines("inputs/02").map do |line|
+  def parse_input(file)
+    File.read_lines(file).map do |line|
       m = line.match /\A(\d*)-(\d*) (\w): (\w*)\z/
       if m.nil?
         nil
@@ -15,14 +15,14 @@ class Aoc2020::Two < Aoc2020::Solution
     end
   end
 
-  def self.part1
+  def part1(input)
     input.count do |i| 
       next false if i.nil?
       (i[0]..i[1]).includes? i[3].count(i[2])
     end
   end
 
-  def self.part2
+  def part2(input)
     input.count do |line| 
       next false if line.nil?
       x = line[0] - 1

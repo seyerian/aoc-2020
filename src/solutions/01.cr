@@ -1,9 +1,9 @@
 class Aoc2020::One < Aoc2020::Solution
-  def self.input
-    File.read_lines("inputs/01").map{|s|s.to_i32}
+  def parse_input(file)
+    File.read_lines(file).map{|s|s.to_i32}
   end
 
-  def self.part1
+  def part1(input)
     input.each_combination(2).each do |(a,b)|
       if a + b == 2020
         return a * b
@@ -11,7 +11,7 @@ class Aoc2020::One < Aoc2020::Solution
     end
   end
 
-  def self.part2
+  def part2(input)
     input.each_combination(3).each do |(a,b,c)|
       if a + b + c == 2020
         return a * b * c
