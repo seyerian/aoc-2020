@@ -1,5 +1,5 @@
 module Aoc2020
-  class Solution
+  abstract class Solution
     def day_word
       self.class.to_s.split("::").last
     end
@@ -20,11 +20,11 @@ module Aoc2020
       parse_input("inputs/#{day_int}")
     end
 
-    def part1(input)
-    end
+    abstract def parse_input(input)
 
-    def part2(input)
-    end
+    abstract def part1(input)
+
+    abstract def part2(input)
 
     def solution(input_type = :real)
       input = 
