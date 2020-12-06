@@ -1,10 +1,6 @@
 class Aoc2020::Three < Aoc2020::Solution
   def parse_input(file)
-    map = Array(Array(Char)).new
-    File.read_lines(file).map do |line|
-      map << line.chars
-    end
-    map
+    InputParsers.map(file)
   end
 
   def char_at(map : Array(Array(Char)), x : Int32, y : Int32)

@@ -1,17 +1,12 @@
 class Aoc2020::Two < Aoc2020::Solution
   def parse_input(file)
-    File.read_lines(file).map do |line|
-      m = line.match /\A(\d*)-(\d*) (\w): (\w*)\z/
-      if m.nil?
-        nil
-      else
-        {
-          m[1].to_i32,
-          m[2].to_i32,
-          m[3],
-          m[4]
-        }
-      end
+    InputParsers.patterns(file, /\A(\d*)-(\d*) (\w): (\w*)\z/) do |m|
+      {
+        m[1].to_i32,
+        m[2].to_i32,
+        m[3],
+        m[4]
+      }
     end
   end
 

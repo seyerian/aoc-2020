@@ -33,5 +33,6 @@ end
 
 
 require "./solution"
+require "./input_parsers"
 require "./solutions/*"
 require "./helpers/*"

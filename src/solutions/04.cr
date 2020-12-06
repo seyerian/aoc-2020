@@ -3,22 +3,11 @@ class Aoc2020::Four < Aoc2020::Solution
   REQUIRED_FIELDS = FIELDS - [ "cid" ]
 
   def parse_input(file)
-    passport_lines = [""]
-    File.read_lines(file).each do |line|
-      if line.empty?
-        passport_lines << ""
-      else
-        l = passport_lines.last 
-        l += " " if l != ""
-        l += line
-        passport_lines[passport_lines.size - 1] = l
-      end
-    end
-    passport_lines.map do |pl|
-      pairs = pl.split(" ")
-      pairs.map do |pair|
+    groups = InputParsers.groups(file)
+    groups.map do |group|
+      group.join(" ").split(" ").map { |pair|
         pair.split(":")
-      end.to_h
+      }.to_h
     end
   end
 
