@@ -1,6 +1,6 @@
 class Aoc2020::Two < Aoc2020::Solution
   def parse_input(file)
-    InputParsers.patterns(file, /\A(\d*)-(\d*) (\w): (\w*)\z/) do |m|
+    InputParsers.pattern(file, /\A(\d*)-(\d*) (\w): (\w*)\z/) do |m|
       {
         m[1].to_i32,
         m[2].to_i32,
