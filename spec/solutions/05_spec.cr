@@ -9,17 +9,11 @@ describe Aoc2020::Five do
     end
   end
   describe "::part1" do
-    #it "passes example input" do
-    #  subject.part1(subject.example_input).should eq 7
-    #end
     it "passes real input" do
       s5.part1(s5.real_input).should eq 883
     end
   end
   describe "::part2" do
-    #it "passes example input" do
-    #  subject.part2(subject.example_input).should eq 336
-    #end
     it "passes real input" do
       s5.part2(s5.real_input).should eq 532
     end
