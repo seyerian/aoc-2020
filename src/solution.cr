@@ -20,6 +20,10 @@ module Aoc2020
       parse_input("inputs/#{day_int}")
     end
 
+    def input(path)
+      parse_input("inputs/#{path}")
+    end
+
     abstract def parse_input(input)
 
     abstract def part1(input)

@@ -1,6 +1,9 @@
 require "./src/aoc2020"
 
-#puts Aoc2020::Eight.new.solution(:real)
+s = Aoc2020::Ten.new
+#s.solution(:example)
+#puts s.part2(s.input("example/10b"))
+s.solution(:real)
 
 #n = Aoc2020::Nine.new
 #puts n.part2(n.example_input, 5)
