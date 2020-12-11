@@ -16,7 +16,7 @@ module Aoc2020
     def self.groups(file)
       groups = [] of Array(String)
       File.read_lines(file).each do |line|
-        if line.empty?
+        if line.strip.empty?
           groups << [] of String
           next
         end
