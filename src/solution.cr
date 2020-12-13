@@ -12,8 +12,9 @@ module Aoc2020
       parse_input("inputs/test/#{day_int}")
     end
 
-    def example_input
-      parse_input("inputs/example/#{day_int}")
+    def example_input(filename : Nil | String = nil)
+      filename ||= day_int
+      parse_input("inputs/example/#{filename}")
     end
 
     def real_input

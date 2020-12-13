@@ -8,12 +8,12 @@ describe Aoc2020::Five do
       s5.seat_id("BBFFBBFRLL").should eq 820
     end
   end
-  describe "::part1" do
+  describe "#part1" do
     it "passes real input" do
       s5.part1(s5.real_input).should eq 883
     end
   end
-  describe "::part2" do
+  describe "#part2" do
     it "passes real input" do
       s5.part2(s5.real_input).should eq 532
     end
