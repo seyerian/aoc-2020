@@ -1,3 +1,9 @@
+def debug(*args)
+  if ENV.has_key?("DEBUG") && ENV["DEBUG"]
+    puts *args
+  end
+end
+
 # TODO: Write documentation for `Aoc2020`
 module Aoc2020
   VERSION = "0.1.0"
@@ -29,8 +35,8 @@ module Aoc2020
     "TwentyFour" => "24",
     "TwentyFive" => "25"
   }
-end
 
+end
 
 require "./solution"
 require "./solutions/*"
