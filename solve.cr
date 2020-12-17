@@ -7,8 +7,8 @@ ENV["DEBUG"] = "true"
 #puts s.part2(s.input("example/10b"))
 #s.solution(:real)
 
-s = Aoc2020::Sixteen.new
+s = Aoc2020::Seventeen.new
 #puts s.part1(s.example_input)
-#puts s.part1(s.real_input)
+puts s.part1(s.real_input)
 #puts s.part2(s.input("example/16b"))
 #puts s.part2(s.real_input)

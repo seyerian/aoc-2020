@@ -1,10 +1,13 @@
 class Map
-  alias StateRow = Hash(Int16, Int8)
-  alias State = Hash(Int16, StateRow)
+  alias StateRow = Hash(Int16, Int8) # x
+  alias StatePlane = Hash(Int16, StateRow) # y
+  alias State = Hash(Int16, StatePlane) # z
   def_clone
   UNKNOWN = '?'
   property time
   property states
+  property default_tile : Int8
+  property out_of_bounds
 
   def initialize(tiles : Array(Char))
     tiles_h = Hash(Int8, Char).new
@@ -19,6 +22,8 @@ class Map
     @states.push State.new
     @states.push State.new # t + 1
     @time = 0
+    @default_tile = @tiles.keys.first
+    @out_of_bounds = false
   end
 
   # `map` is expected to be a multi-line string, e.g. a heredoc
@@ -26,13 +31,13 @@ class Map
     map.split("\n").each.with_index do |line, y|
       line.chars.each.with_index do |char, x|
         next unless @tiles.values.includes?(char)
-        set x.to_i16, y.to_i16, char
+        set x.to_i16, y.to_i16, 0_i16, char
       end
     end
   end
 
   def state(time_offset = 0)
-    states[time + time_offset]
+    @states[time + time_offset]
   end
 
   def step
@@ -43,37 +48,46 @@ class Map
   def count(tile : Int8|Char)
     tile = @tiles.key_for(tile) if tile.is_a? Char
     count = 0
-    all_y.min.to(all_y.max) do |y|
-      all_x.min.to(all_x.max) do |x|
-        count += 1 if get(x, y) == tile
-      end
+    each do |x, y, z, i|
+      count += 1 if i == tile
     end
     count
   end
 
-  def neighbors(x : Int16, y : Int16, diagonal = false)
+  def cube_neighbors(x : Int16, y : Int16, z : Int16)
+    neighbors(x, y, z, true) + neighbors(x, y, z - 1, true, true) + neighbors(x, y, z + 1, true, true)
+  end
+
+  def neighbors(x : Int16, y : Int16, diagonal = false, center = false)
+    neighbors(x, y, 0_i16, diagonal, center)
+  end
+
+  def neighbors(x : Int16, y : Int16, z : Int16, diagonal = false, center = false)
     neighboring_tiles = [
-      {x: 0, y: -1},
-      {x: 0, y: 1},
-      {x: -1, y: 0},
-      {x: 1, y: 0}
+      {x: 0, y: -1, z: 0},
+      {x: 0, y: 1, z: 0},
+      {x: -1, y: 0, z: 0},
+      {x: 1, y: 0, z: 0}
     ]
     if diagonal
       neighboring_tiles.concat([
-        {x: -1, y: -1},
-        {x: -1, y: 1},
-        {x: 1, y: -1},
-        {x: 1, y: 1}
+        {x: -1, y: -1, z: 0},
+        {x: -1, y: 1, z: 0},
+        {x: 1, y: -1, z: 0},
+        {x: 1, y: 1, z: 0}
       ])
     end
+    if center
+      neighboring_tiles.push({x: 0, y: 0, z: 0})
+    end
     neighboring_tiles.map do |d|
-      tile = get( x + d[:x], y + d[:y] )
-      next if tile.nil?
+      tile = get( x + d[:x], y + d[:y], z: z + d[:z] )
       {
         x: x + d[:x],
         y: y + d[:y],
+        z: z + d[:z],
         tile: tile,
-        char: @tiles[tile]
+        char: tile_char(tile)
       }
     end.compact
   end
@@ -97,7 +111,7 @@ class Map
             x: x2,
             y: y2,
             tile: tile,
-            char: @tiles[tile]
+            char: tile_char(tile)
           }
         end
         x2 = x2 + d[:x]
@@ -108,74 +122,90 @@ class Map
     end.compact
   end
 
-  def find(tile : Int8|Char)
+  def find(tile : Int8|Char, z : Int16 = 0_i16)
     tile = @tiles.key_for(tile) if tile.is_a? Char
-    all_y.min.to(all_y.max) do |y|
-      all_x.min.to(all_x.max) do |x|
-        if get(x, y) == tile
-          return {x: x, y: y} 
-        end
+    each(z) do |x, y, z, i|
+      if i == tile
+        return {x: x, y: y, z: z} 
       end
     end
     nil
   end
 
-  def unset(x : Int16, y : Int16, time_offset = 0)
+  def unset(x : Int16, y : Int16, z : Int16 = 0_i16, time_offset = 0)
     s = state(time_offset)
-    x = x.to_i16
-    y = y.to_i16
-    return if (x.nil? || y.nil?)
-    return if !s.has_key?(y)
-    return if !s[y].has_key?(x)
-    s[y].delete(x)
-  end
-
-  def set(x : Int16, y : Int16, tile : Int8|Char|Nil, time_offset = 0)
-    s = state(time_offset)
-    tile = @tiles.key_for(tile) if tile.is_a? Char
-    return false if tile.nil?
-    s[y] = StateRow.new if !s.has_key?(y)
-    s[y][x] = tile
-    true
-  end
-
-  def get_char(x : Int16, y : Int16, time_offset = 0)
-    if tile = get(x,y)
-      @tiles[tile]
-    else
-      UNKNOWN
+    i = get(x, y, z, time_offset)
+    if i
+      s[z][y].delete(x)
     end
   end
 
-  def get(x : Int16, y : Int16, time_offset = 0)
+  def set(x : Int16, y : Int16, z : Int16, tile : Int8|Char|Nil = nil, time_offset = 0)
     s = state(time_offset)
-    x = x.to_i16
-    y = y.to_i16
-    return nil if !s.has_key?(y)
-    return nil if !s[y].has_key?(x)
-    s[y][x]
+    tile = @tiles.key_for(tile) if tile.is_a? Char
+    return false if tile.nil?
+    s[z] = StatePlane.new if !s.has_key?(z)
+    s[z][y] = StateRow.new if !s[z].has_key?(y)
+    s[z][y][x] = tile
+    true
   end
 
+  def tile_char(tile : Int8 | Nil)
+    tile ||= default_tile
+    @tiles.has_key?(tile) ? @tiles[tile] : UNKNOWN
+  end
+
+  def get_char(x : Int16, y : Int16, z : Int16 = 0_i16, time_offset = 0)
+    tile = get(x, y, z, time_offset)
+    tile_char(tile)
+  end
+
+  def get(x : Int16, y : Int16, z : Int16 = 0_i16, time_offset = 0)
+    s = state(time_offset)
+    return nil if !s.has_key?(z)
+    return nil if !s[z].has_key?(y)
+    return nil if !s[z][y].has_key?(x)
+    s[z][y][x]
+  end
+
+  def extend_bounds(range : Array(Int16))
+    min = range.min
+    max = range.max
+    range.unshift(min - 1)
+    range.push(max + 1)
+    range 
+  end
+
+  def all_z(time_offset = 0)
+    s = state(time_offset)
+    z = s.keys
+    out_of_bounds ? extend_bounds(z) : z
+  end
   def all_y(time_offset = 0)
     s = state(time_offset)
-    s.keys
+    y = [] of Int16
+    s.each do |z, plane|
+      y.concat plane.keys
+    end
+    y.uniq!
+    out_of_bounds ? extend_bounds(y) : y
   end
   def all_x(time_offset = 0)
     s = state(time_offset)
-    s.values.flatten.map(&.keys).flatten
+    x = [] of Int16
+    s.each do |z, plane|
+      x.concat plane.values.flatten.map(&.keys).flatten
+    end
+    x.uniq!
+    out_of_bounds ? extend_bounds(x) : x
   end
 
-  def draw(speed = 0.05)
+  def draw(speed = 0.05, z : Int16 = 0_i16)
     s = state
     #`clear`
     all_y.min.to(all_y.max) do |y|
       all_x.min.to(all_x.max) do |x|
-        if s.has_key?(y) && s[y].has_key?(x)
-          tile = s[y][x]
-          print @tiles.has_key?(tile) ? @tiles[tile] : UNKNOWN
-          next
-        end
-        print ' '
+        print get_char(x, y, z)
       end
       puts
     end
@@ -184,16 +214,29 @@ class Map
   end
 
   def each_char
-    each do |x, y, tile|
-      next if tile.nil?
-      yield x, y, @tiles[tile]
+    each do |x, y, z, tile|
+      yield x, y, z, tile_char(tile)
     end
   end
 
-  def each
+  def each 
+    all_z.min.to(all_z.max) do |z|
+      each(z) do |x, y, tile|
+        yield x, y, z, tile
+      end
+    end
+  end
+   
+  def each_char(z : Int16)
+    each(z) do |x, y, tile|
+      yield x, y, tile_char(tile)
+    end
+  end
+
+  def each(z : Int16)
     all_y.min.to(all_y.max) do |y|
       all_x.min.to(all_x.max) do |x|
-        yield x, y, get(x, y)
+        yield x, y, get(x, y, z)
       end
     end
   end
