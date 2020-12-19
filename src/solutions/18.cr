@@ -5,7 +5,6 @@ class Aoc2020::Eighteen < Aoc2020::Solution
 
   def eval_expr_add_prec(x : String)
     x = x.clone
-    puts x
     while m = x.match(/(\([\d \*\+]+\))/)
       inner = m[1][1..-2]
       x = x.sub(m[1], eval_expr_add_prec(inner))
