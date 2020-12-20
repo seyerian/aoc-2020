@@ -64,19 +64,19 @@ describe Aoc2020::Twenty do
     end
   end
   describe "#part1" do
-    #it "passes example input" do
-    #  s20.part1(s20.example_input).should eq 2
-    #end
+    it "passes example input" do
+      s20.part1(s20.example_input).should eq 20899048083289
+    end
     #it "passes real input" do
-    #  s20.part1(s20.real_input).should eq 180
+    #  s20.part1(s20.real_input).should eq 20033377297069
     #end
   end
   describe "#part2" do
-    #it "passes example inputs" do
-    #  s20.part2(s20.input("example/19b")).should eq 12
-    #end
+    it "passes example inputs" do
+      s20.part2(s20.example_input).should eq 273
+    end
     #it "passes real input" do
-    #  s20.part2(s20.real_input).should eq 323
+    #  s20.part2(s20.real_input).should eq 2084
     #end
   end
 end
