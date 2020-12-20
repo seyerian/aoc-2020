@@ -11,10 +11,10 @@ describe Aoc2020::Seventeen do
   end
   describe "#part2" do
     it "passes example inputs" do
-      #s17.part2(s17.input("example/16b")).should eq
+      s17.part2(s17.example_input).should eq 848
     end
     it "passes real input" do
-      #s17.part2(s17.real_input).should eq 603409823791
+      s17.part2(s17.real_input).should eq 1972
     end
   end
 end

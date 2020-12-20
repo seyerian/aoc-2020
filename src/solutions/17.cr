@@ -67,7 +67,7 @@ class Aoc2020::Seventeen < Aoc2020::Solution
 
   def part2(file)
     map_lines = File.read_lines(file)
-    space = Space(FourD).new([INACTIVE,ACTIVE])
+    space = Space(FourD, Char).new
     num_lines = map_lines.size
     map_lines.each.with_index do |line, y|
       line.each_char.with_index do |char, x|
@@ -77,31 +77,31 @@ class Aoc2020::Seventeen < Aoc2020::Solution
 
     loop do
       if space.time == 7
-        return space.count_tile(ACTIVE)
+        return space.count_cell(ACTIVE)
       end
-      draw_space space
-      sleep 0.5
+      #draw_space space
+      #sleep 0.5
       expand = Array(FourD).new
-      space.each_char do |p, char|
+      space.each do |s, char|
         n_chars = Array(Char).new
         [Z, P, N].each_repeated_permutation(size: 4, reuse: true) do |d|
           next if d == [Z, Z, Z, Z]
-          p_neighbor = {
-            x: p[:x] + d[0],
-            y: p[:y] + d[1],
-            z: p[:z] + d[2],
-            w: p[:w] + d[3]
+          neighbor = {
+            x: s[:x] + d[0],
+            y: s[:y] + d[1],
+            z: s[:z] + d[2],
+            w: s[:w] + d[3]
           }
-          c = space.get_char(p_neighbor)
+          c = space.get(neighbor) || '?'
           if [ACTIVE, INACTIVE].includes?(c)
             n_chars << c
           else
-            expand << p_neighbor
+            expand << neighbor
           end
         end
         space.time_offset = 1
         if space.time == 0
-          space.set(p, char)
+          space.set(s, char)
         else
           n_active = n_chars.count(ACTIVE)
           activity = 
@@ -110,16 +110,16 @@ class Aoc2020::Seventeen < Aoc2020::Solution
             else
               n_active == 3 ? ACTIVE : INACTIVE
             end
-          space.set(p, activity)
+          space.set(s, activity)
         end
         space.time_offset = 0
-      end # each_char
+      end # each
       space.time_offset = 1
       expand.uniq!
       #puts "expand #{expand.size}"
-      expand.each do |p|
-        #puts "set #{p}"
-        space.set(p, INACTIVE)
+      expand.each do |s|
+        #puts "set #{s}"
+        space.set(s, INACTIVE)
       end
       space.time_offset = 0
       space.step
