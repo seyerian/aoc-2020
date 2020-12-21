@@ -8,7 +8,7 @@ module Aoc2020
       map
     end
     def self.pattern(file, pattern)
-      File.read_lines(file).map do |line|
+      File.read_lines(file).compact_map do |line|
         m = line.match(pattern)
         m.nil? ? nil : yield(m)
       end
