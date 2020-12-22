@@ -1,6 +1,6 @@
 require "../spec_helper"
 
-describe Aoc2020::Nineteen do
+describe Aoc2020::TwentyOne do
   describe "#part1" do
     it "passes example input" do
       s21.part1(s21.example_input).should eq 5
