@@ -7,7 +7,6 @@ class Space(Spatial, Cell)
   property time : Int32
   property time_offset : Int32
   property states : Array(Hash(Spatial, Cell))
-  property out_of_bounds : Bool
 
   def initialize
     @states = Array(Hash(Spatial, Cell)).new
@@ -15,7 +14,6 @@ class Space(Spatial, Cell)
     @states.push Hash(Spatial, Cell).new # t + 1
     @time = 0
     @time_offset = 0
-    @out_of_bounds = false
   end
 
   def state=(s)
